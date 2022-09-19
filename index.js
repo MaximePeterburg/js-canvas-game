@@ -1,6 +1,6 @@
 const { Engine, Render, Runner, World, Bodies } = Matter;
 
-const cells = 15;
+const cells = 12;
 const width = 480;
 const height = 480;
 
@@ -124,7 +124,13 @@ verticals.forEach((row, rowIndex) => {
 		World.add(world, wall);
 	});
 });
+
+// Goal
 const goal = Bodies.rectangle(width - unitLength / 2, height - unitLength / 2, unitLength * 0.7, unitLength * 0.7, {
 	isStatic: true
 });
 World.add(world, goal);
+
+// Ball
+const ball = Bodies.circle(unitLength / 2, unitLength / 2, unitLength / 4, { isStatic: true });
+World.add(world, ball);
