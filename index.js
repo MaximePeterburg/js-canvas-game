@@ -1,7 +1,11 @@
 const { Engine, Render, Runner, World, Bodies } = Matter;
+
 const cells = 3;
 const width = 480;
 const height = 480;
+
+const unitLength = width / cells;
+
 const engine = Engine.create();
 const { world } = engine;
 const render = Render.create({
@@ -26,7 +30,6 @@ const walls = [
 World.add(world, walls);
 
 //Maze Generation
-const grid = Array(cells).fill(null).map(() => Array(cells).fill(false));
 const shuffle = (arr) => {
 	let counter = arr.length;
 	while (counter > 0) {
@@ -39,6 +42,7 @@ const shuffle = (arr) => {
 	return arr;
 };
 
+const grid = Array(cells).fill(null).map(() => Array(cells).fill(false));
 const verticals = Array(cells).fill(null).map(() => Array(cells - 1).fill(false));
 const horizontals = Array(cells - 1).fill(null).map(() => Array(cells).fill(false));
 
@@ -59,7 +63,6 @@ const stepThroughCell = (row, column) => {
 		[ row + 1, column, 'down' ],
 		[ row, column - 1, 'left' ]
 	]);
-	console.log(neighbors);
 	// For each neighbor ...
 	for (let neighbor of neighbors) {
 		const [ nextRow, nextColumn, direction ] = neighbor;
@@ -81,7 +84,42 @@ const stepThroughCell = (row, column) => {
 		} else if (direction === 'down') {
 			horizontals[row][column] = true;
 		}
+		stepThroughCell(nextRow, nextColumn);
 	}
-	// visit that next cell
 };
 stepThroughCell(startRow, startColumn);
+
+horizontals.forEach((row, rowIndex) => {
+	row.forEach((open, columnIndex) => {
+		if (open) {
+			return;
+		}
+		const wall = Bodies.rectangle(
+			columnIndex * unitLength + unitLength / 2,
+			rowIndex * unitLength + unitLength,
+			unitLength,
+			1,
+			{
+				isStatic: true
+			}
+		);
+		World.add(world, wall);
+	});
+});
+verticals.forEach((column, columnIndex) => {
+	column.forEach((open, rowIndex) => {
+		if (open) {
+			return;
+		}
+		const wall = Bodies.rectangle(
+			columnIndex * unitLength + unitLength,
+			rowIndex * unitLength + unitLength / 2,
+			1,
+			unitLength,
+			{
+				isStatic: true
+			}
+		);
+		World.add(world, wall);
+	});
+});
